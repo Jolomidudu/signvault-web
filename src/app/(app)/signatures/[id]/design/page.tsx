@@ -1,6 +1,6 @@
 "use client";
 
-import { AlignLeft, Copy, Download, RotateCcw, SlidersHorizontal, Type } from "lucide-react";
+import { Copy, RotateCcw, SlidersHorizontal, Type } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { SignaturePreview } from "@/src/components/ui/signature-preview";
 import { useState } from "react";

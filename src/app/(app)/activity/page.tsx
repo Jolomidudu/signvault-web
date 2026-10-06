@@ -1,4 +1,4 @@
-import { Activity, CheckCircle2, Copy, FileCheck2, Link2, ShieldCheck } from "lucide-react";
+import { Activity, CheckCircle2, Copy, FileCheck2, Link2 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/src/components/ui/card";
 import { mockActivity } from "@/src/lib/mock-data";
 

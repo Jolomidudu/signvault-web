@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Copy, Download, Eye, MoreHorizontal, Share2, Trash2 } from "lucide-react";
+import { Copy, Download, Eye, MoreHorizontal, Share2 } from "lucide-react";
 import type { Signature } from "@/src/lib/types";
 import { SignaturePreview } from "@/src/components/ui/signature-preview";
 import { SignatureStatusBadge } from "@/src/components/ui/status-badge";

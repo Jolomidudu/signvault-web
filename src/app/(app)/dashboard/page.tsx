@@ -1,11 +1,9 @@
 import Link from "next/link";
-import { Activity, Bell, CheckCircle2, Copy, FileCheck2, Plus, ShieldCheck, Signature, Timer } from "lucide-react";
+import { Activity, CheckCircle2, Copy, FileCheck2, Plus, ShieldCheck, Signature, Timer } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/src/components/ui/card";
-import { SignaturePreview } from "@/src/components/ui/signature-preview";
 import { SignatureCard } from "@/src/components/app/signature-card";
 import { mockActivity, mockSignatures } from "@/src/lib/mock-data";
-import { Badge } from "@/src/components/ui/badge";
 
 const stats = [{ label: "Signature count", value: "3", detail: "of 25 saved", icon: Signature, tone: "bg-slate-950 text-white" }, { label: "Active signatures", value: "2", detail: "ready to use", icon: CheckCircle2, tone: "bg-emerald-50 text-emerald-700" }, { label: "Revoked signatures", value: "0", detail: "no revoked items", icon: ShieldCheck, tone: "bg-red-50 text-red-600" }, { label: "Expiring soon", value: "1", detail: "within 30 days", icon: Timer, tone: "bg-amber-50 text-amber-700" }];
 

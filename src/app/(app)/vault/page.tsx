@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Plus, Search, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Card, CardContent } from "@/src/components/ui/card";

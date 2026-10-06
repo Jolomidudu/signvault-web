@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, KeyRound, LayoutDashboard, LockKeyhole, Menu, Settings2, ShieldCheck, Signature, UserRound, X } from "lucide-react";
+import { Activity, KeyRound, LayoutDashboard, LockKeyhole, Menu, Settings2, ShieldCheck, Signature, UserRound } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Logo } from "@/src/components/ui/logo";
 

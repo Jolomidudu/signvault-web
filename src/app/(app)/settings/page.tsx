@@ -1,10 +1,73 @@
+"use client";
+
 import Link from "next/link";
 import { AlertTriangle, CircleHelp, Fingerprint, KeyRound, LockKeyhole, UserRound } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Card, CardContent } from "@/src/components/ui/card";
+import { ConfirmDialog } from "@/src/components/ui/confirm-dialog";
+import { useState } from "react";
 
-const links = [{ label: "Profile", detail: "Manage your personal information", href: "/profile", icon: UserRound }, { label: "Security", detail: "PIN, biometrics, sessions, and status", href: "/settings/security", icon: LockKeyhole }, { label: "Privacy", detail: "Local access and retention controls", href: "/settings/privacy", icon: Fingerprint }, { label: "Auto-lock", detail: "Choose a session timeout", href: "/settings/security/auto-lock", icon: KeyRound }, { label: "Help & Support", detail: "Get help from the SignVault team", href: "/support", icon: CircleHelp }];
+const links = [
+  { label: "Profile", detail: "Manage your personal information", href: "/profile", icon: UserRound },
+  { label: "Security", detail: "PIN, biometrics, sessions, and status", href: "/settings/security", icon: LockKeyhole },
+  { label: "Privacy", detail: "Local access and retention controls", href: "/settings/privacy", icon: Fingerprint },
+  { label: "Auto-lock", detail: "Choose a session timeout", href: "/settings/security/auto-lock", icon: KeyRound },
+  { label: "Help & Support", detail: "Get help from the SignVault team", href: "/support", icon: CircleHelp },
+];
 
 export default function SettingsPage() {
-  return <div><h1 className="text-3xl font-semibold tracking-tight">Settings</h1><p className="mt-2 text-sm text-slate-600">Manage your account and vault preferences.</p><div className="mt-8 grid gap-4 lg:grid-cols-2">{links.map(({ label, detail, href, icon: Icon }) => <Link key={label} href={href} className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-sm"><div className="flex items-center gap-4"><span className="grid h-10 w-10 place-items-center rounded-xl bg-slate-100 text-slate-600"><Icon className="h-5 w-5" /></span><div><p className="font-semibold">{label}</p><p className="mt-1 text-xs text-slate-500">{detail}</p></div></div></Link>)}</div><Card className="mt-6 border-red-200 bg-red-50/40"><CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div className="flex gap-4"><AlertTriangle className="h-5 w-5 shrink-0 text-red-600" /><div><h2 className="font-semibold text-red-900">Delete account</h2><p className="mt-1 text-sm text-red-700">This action cannot be undone.</p></div></div><Button variant="danger">Delete account</Button></CardContent></Card></div>;
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleted, setDeleted] = useState(false);
+
+  return (
+    <div>
+      <h1 className="text-3xl font-semibold tracking-tight">Settings</h1>
+      <p className="mt-2 text-sm text-slate-600">Manage your account and vault preferences.</p>
+
+      <div className="mt-8 grid gap-4 lg:grid-cols-2">
+        {links.map(({ label, detail, href, icon: Icon }) => (
+          <Link key={label} href={href} className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-sm">
+            <div className="flex items-center gap-4">
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-slate-100 text-slate-600"><Icon className="h-5 w-5" /></span>
+              <div>
+                <p className="font-semibold">{label}</p>
+                <p className="mt-1 text-xs text-slate-500">{detail}</p>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      <Card className="mt-6 border-red-200 bg-red-50/40">
+        <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex gap-4">
+            <AlertTriangle className="h-5 w-5 shrink-0 text-red-600" />
+            <div>
+              <h2 className="font-semibold text-red-900">Delete account</h2>
+              <p className="mt-1 text-sm text-red-700">This action cannot be undone.</p>
+            </div>
+          </div>
+          <Button variant="danger" onClick={() => setDialogOpen(true)}>Delete account</Button>
+        </CardContent>
+      </Card>
+
+      <ConfirmDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        title="Delete your account?"
+        description="This mock flow does not delete any data because no backend is connected."
+        confirmLabel="Delete account"
+        onConfirm={() => {
+          setDeleted(true);
+          setDialogOpen(false);
+        }}
+      />
+
+      {deleted && (
+        <div role="status" className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          Mock deletion confirmed. No account was removed.
+        </div>
+      )}
+    </div>
+  );
 }
