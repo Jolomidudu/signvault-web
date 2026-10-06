@@ -1,2 +1,2 @@
-# signvault
-signing vault web and app
+# signvault-web
+signvault web app
