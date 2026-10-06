@@ -1,0 +1,9 @@
+import { Clock3 } from "lucide-react";
+import { Button } from "@/src/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/src/components/ui/card";
+
+const options = [{ label: "Immediately", detail: "Lock the vault as soon as it is inactive." }, { label: "After 1 minute", detail: "Lock after a short period of inactivity." }, { label: "After 5 minutes", detail: "A balanced timeout for frequent use." }, { label: "After 15 minutes", detail: "Keep the vault accessible during longer sessions." }, { label: "Never", detail: "Do not automatically lock the vault." }];
+
+export default function AutoLockPage() {
+  return <div><h1 className="text-3xl font-semibold tracking-tight">Auto-lock</h1><p className="mt-2 text-sm text-slate-600">Choose when SignVault should lock your session.</p><Card className="mt-8"><CardHeader><div><p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Session protection</p><h2 className="mt-1 font-semibold">Locking preference</h2></div><Clock3 className="h-5 w-5 text-slate-400" /></CardHeader><CardContent><div className="space-y-3">{options.map((option, index) => <button key={option.label} className={`flex w-full items-center gap-4 rounded-xl border p-4 text-left transition ${index === 1 ? "border-blue-600 bg-blue-50" : "border-slate-200 hover:border-slate-300"}`}><span className={`grid h-5 w-5 place-items-center rounded-full border ${index === 1 ? "border-blue-600 bg-blue-600" : "border-slate-300"}`}>{index === 1 && <span className="h-2 w-2 rounded-full bg-white" />}</span><span><span className="block text-sm font-semibold">{option.label}</span><span className="mt-1 block text-xs text-slate-500">{option.detail}</span></span></button>)}</div><div className="mt-6 flex justify-end"><Button>Save preference</Button></div></CardContent></Card></div>;
+}

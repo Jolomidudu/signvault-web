@@ -1,0 +1,7 @@
+import { Activity, CheckCircle2, Copy, FileCheck2, Link2, ShieldCheck } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/src/components/ui/card";
+import { mockActivity } from "@/src/lib/mock-data";
+
+export default function ActivityPage() {
+  return <div><h1 className="text-3xl font-semibold tracking-tight">Activity</h1><p className="mt-2 text-sm text-slate-600">Recent actions across your signature vault.</p><Card className="mt-8"><CardHeader><div><p className="text-xs font-semibold uppercase tracking-wider text-slate-400">History</p><h2 className="mt-1 text-lg font-semibold">Recent activity</h2></div><Activity className="h-5 w-5 text-slate-400" /></CardHeader><CardContent><div className="relative space-y-6 border-l border-slate-200 pl-6">{mockActivity.map(item => <div key={item.id} className="relative"><span className="absolute -left-[29px] top-1 grid h-4 w-4 place-items-center rounded-full bg-slate-950 text-white">{item.type === "verified" ? <CheckCircle2 className="h-2.5 w-2.5" /> : item.type === "shared" ? <Link2 className="h-2.5 w-2.5" /> : item.type === "copied" ? <Copy className="h-2.5 w-2.5" /> : <FileCheck2 className="h-2.5 w-2.5" />}</span><div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-sm font-semibold">{item.title}</p><p className="mt-1 text-xs text-slate-500">{item.detail}</p></div><p className="text-xs text-slate-400">{item.createdAt}</p></div></div>)}</div></CardContent></Card></div>;
+}

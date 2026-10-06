@@ -1,0 +1,6 @@
+import { Copy, History, RotateCcw } from "lucide-react";
+import { Button } from "@/src/components/ui/button";
+import { SignaturePreview } from "@/src/components/ui/signature-preview";
+import { mockSignatures } from "@/src/lib/mock-data";
+
+export default function VersionsPage() { const signature = mockSignatures[0]; return <div><h1 className="text-3xl font-semibold tracking-tight">Saved versions</h1><p className="mt-2 text-sm text-slate-600">Professional · {signature.versions.length} versions saved</p><div className="mt-8 grid gap-4 lg:grid-cols-2">{signature.versions.map(version => <article key={version.id} className="rounded-2xl border border-slate-200 bg-white p-5"><div className="flex items-center justify-between"><div><p className="text-xs text-slate-500">Version {version.number}</p><h2 className="mt-1 font-semibold">{version.name}</h2></div><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600">{version.style}</span></div><SignaturePreview signature={version.signature} className="mt-5" compact /><div className="mt-4 flex flex-wrap gap-2"><Button variant="secondary" size="sm"><RotateCcw className="h-4 w-4" /> Use Version</Button><Button variant="ghost" size="sm"><Copy className="h-4 w-4" /> Copy</Button><Button variant="ghost" size="sm"><History className="h-4 w-4" /> Details</Button></div></article>)}</div></div>; }
