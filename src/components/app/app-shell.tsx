@@ -27,7 +27,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <nav className="mt-8 space-y-1" aria-label="Primary navigation">
         {navigation.map((item) => {
           const Icon = item.icon ?? LayoutDashboard;
-          const active = pathname === item.href;
+          const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
             <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${active ? "bg-slate-950 text-white" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"}`}>
               <Icon className="h-[18px] w-[18px]" aria-hidden="true" />

@@ -21,7 +21,7 @@ export default function Home() {
         <nav className="hidden items-center gap-7 text-sm text-slate-600 md:flex" aria-label="Main navigation">
           <a href="#features" className="hover:text-slate-950">Features</a><a href="#security" className="hover:text-slate-950">Security</a><a href="#how-it-works" className="hover:text-slate-950">How it works</a><a href="#faq" className="hover:text-slate-950">FAQ</a>
         </nav>
-        <div className="hidden items-center gap-2 sm:flex"><Link href="/login" className="px-3 py-2 text-sm font-medium text-slate-700">Sign In</Link><Link href="/register"><Button size="sm">Create Account</Button></Link></div>
+        <div className="flex items-center gap-2"><Link href="/login" className="hidden px-3 py-2 text-sm font-medium text-slate-700 sm:inline">Sign In</Link><Link href="/register"><Button size="sm" className="w-full sm:w-auto">Create Account</Button></Link></div>
       </header>
       <main>
         <section className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 pb-24 pt-16 lg:grid-cols-[1.05fr_.95fr] lg:px-8 lg:pb-32 lg:pt-24">
