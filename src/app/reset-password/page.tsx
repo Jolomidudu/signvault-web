@@ -1,5 +1,3 @@
-"use client";
-
 import { AuthShell } from "@/src/components/ui/auth-shell";
 import { ResetPasswordForm } from "@/src/components/ui/reset-password-form";
 

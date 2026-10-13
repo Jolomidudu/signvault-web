@@ -55,14 +55,13 @@ export default function DashboardPage() {
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
-    setError("");
     void Promise.all([
       getSignatureSummary(),
       listSignatures({ limit: 2, sort: "updatedAt", order: "desc" }),
     ])
       .then(([nextSummary, nextRecent]) => {
         if (!active) return;
+        setError("");
         setSummary(nextSummary);
         setRecent(nextRecent);
       })
@@ -88,9 +87,7 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="secondary">
-            <Copy className="h-4 w-4" /> Import / Export
-          </Button>
+          <Link href="/vault"><Button variant="secondary"><Copy className="h-4 w-4" /> Open vault</Button></Link>
           <Button>
             <Plus className="h-4 w-4" /> Create Signature
           </Button>
@@ -132,7 +129,7 @@ export default function DashboardPage() {
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2">
               {loading && <p className="text-sm text-slate-500">Loading signatures…</p>}
-              {error && <div className="col-span-full rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800"><p>{error}</p><Button variant="secondary" size="sm" className="mt-3" onClick={() => setRetry((value) => value + 1)}>Retry</Button></div>}
+              {error && <div className="col-span-full rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800"><p>{error}</p><Button variant="secondary" size="sm" className="mt-3" onClick={() => { setLoading(true); setError(""); setRetry((value) => value + 1); }}>Retry</Button></div>}
               {!loading && !error && recent?.items.length === 0 && <p className="text-sm text-slate-500">Your vault is empty. Create a signature profile to get started.</p>}
               {recent?.items.map((signature) => <SignatureCard key={signature.id} signature={signature} />)}
             </div>

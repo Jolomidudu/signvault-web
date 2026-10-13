@@ -21,10 +21,10 @@ export default function VersionsPage() {
 
   useEffect(() => {
     let active = true;
-    setError("");
     void Promise.all([getSignature(signatureId), listVersions(signatureId)])
       .then(([record, versions]) => {
         if (!active) return;
+        setError("");
         setSignature(record);
         setHistory(versions);
       })

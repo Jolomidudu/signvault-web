@@ -8,30 +8,28 @@ export function PrivateSignatureImage({ signatureId, versionId, alt }: {
   versionId: string;
   alt: string;
 }) {
-  const [url, setUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [asset, setAsset] = useState<{ key: string; url?: string; error?: string } | null>(null);
+  const key = `${signatureId}/${versionId}`;
 
   useEffect(() => {
     let active = true;
     let objectUrl: string | null = null;
-    setUrl(null);
-    setError(null);
     void getPrivateSvg(signatureId, versionId)
       .then((blob) => {
         if (!active) return;
         objectUrl = URL.createObjectURL(blob);
-        setUrl(objectUrl);
+        setAsset({ key, url: objectUrl });
       })
       .catch(() => {
-        if (active) setError("Canonical preview is not available yet.");
+        if (active) setAsset({ key, error: "Canonical preview is not available yet." });
       });
     return () => {
       active = false;
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [signatureId, versionId]);
+  }, [signatureId, versionId, key]);
 
-  if (error) return <p role="status" className="text-sm text-slate-500">{error}</p>;
-  if (!url) return <div className="grid min-h-36 place-items-center text-sm text-slate-400">Loading private preview…</div>;
-  return <img src={url} alt={alt} className="mx-auto max-h-56 max-w-full object-contain" />;
+  if (asset?.key === key && asset.error) return <p role="status" className="text-sm text-slate-500">{asset.error}</p>;
+  if (asset?.key !== key || !asset.url) return <div className="grid min-h-36 place-items-center text-sm text-slate-400">Loading private preview…</div>;
+  return <img src={asset.url} alt={alt} className="mx-auto max-h-56 max-w-full object-contain" />;
 }

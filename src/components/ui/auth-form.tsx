@@ -31,7 +31,7 @@ const registerSchema = z
 type LoginValues = z.infer<typeof loginSchema>;
 type RegisterValues = z.infer<typeof registerSchema>;
 
-export function LoginForm() {
+export function LoginForm({ logoutFailed = false }: { logoutFailed?: boolean }) {
   const router = useRouter();
   const auth = useAuth();
   const {
@@ -45,10 +45,6 @@ export function LoginForm() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("logout") === "failed") {
-      setMessage("You are signed out locally, but the server could not confirm cookie revocation. Your browser may restore the session after reload.");
-      return;
-    }
     if (auth.status === "authenticated") {
       router.replace(
         safeReturnTo(
@@ -107,6 +103,7 @@ export function LoginForm() {
       >
         Sign In
       </Button>
+      {logoutFailed && <p role="status" className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900">You are signed out locally, but the server could not confirm cookie revocation. Your browser may restore the session after reload.</p>}
       {message && (
         <p
           role="alert"

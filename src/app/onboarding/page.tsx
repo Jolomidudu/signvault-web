@@ -111,7 +111,7 @@ export default function OnboardingPage() {
               <p className="text-xs text-slate-500">Signature preview</p>
               <div className="mt-5 flex min-h-36 items-center justify-center rounded-xl border border-slate-200 bg-white">
                 <span className="font-serif text-4xl tracking-tight">
-                  Jolomi Dudu
+                  Signature sample
                 </span>
               </div>
             </div>

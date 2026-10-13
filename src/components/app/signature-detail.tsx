@@ -23,9 +23,8 @@ export function SignatureDetail({ signatureId }: { signatureId: string }) {
 
   useEffect(() => {
     let active = true;
-    setError("");
     void getSignature(signatureId)
-      .then((data) => { if (active) setSignature(data); })
+      .then((data) => { if (active) { setError(""); setSignature(data); } })
       .catch((cause: unknown) => { if (active) setError(cause instanceof ApiError ? cause.message : "Signature details could not be loaded."); });
     return () => { active = false; };
   }, [signatureId, retry]);
@@ -70,7 +69,7 @@ export function SignatureDetail({ signatureId }: { signatureId: string }) {
     }
   }
 
-  if (error && !signature) return <section role="alert" className="rounded-xl border border-red-200 bg-white p-6"><p className="text-sm text-red-800">{error}</p><Button className="mt-3" variant="secondary" onClick={() => setRetry((value) => value + 1)}>Retry</Button></section>;
+  if (error && !signature) return <section role="alert" className="rounded-xl border border-red-200 bg-white p-6"><p className="text-sm text-red-800">{error}</p><Button className="mt-3" variant="secondary" onClick={() => { setError(""); setRetry((value) => value + 1); }}>Retry</Button></section>;
   if (!signature) return <p role="status" className="text-sm text-slate-500">Loading signature…</p>;
 
   return (

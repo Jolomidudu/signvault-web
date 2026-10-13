@@ -4,6 +4,7 @@ import {
   apiGet,
   apiBlob,
   apiPost,
+  apiPut,
   bootstrapSession,
   clearSession,
   createVersionAndRender,
@@ -249,4 +250,54 @@ test("vault queries are passed to the API and canonical exports are authenticate
   assert.equal(requests[1].init?.credentials, "include");
   assert.equal(new Headers(requests[2].init?.headers).get("Authorization"), "Bearer vault-token");
   assert.match(requests[2].url, /format=png&scale=2$/);
+});
+
+test("signature creation is separate from version creation and render follows version persistence", async () => {
+  const calls: Array<{ url: string; method: string; body?: string }> = [];
+  globalThis.fetch = async (input, init) => {
+    const url = String(input);
+    calls.push({ url, method: init?.method ?? "GET", body: typeof init?.body === "string" ? init.body : undefined });
+    if (url.endsWith("/auth/web/login")) return Response.json(authPayload("workflow-token"));
+    if (url.endsWith("/signatures")) return Response.json({ id: "signature-1", name: "Work" });
+    if (url.endsWith("/versions")) return Response.json({ id: "version-1", signatureId: "signature-1", versionNumber: 1 });
+    if (url.endsWith("/render")) return Response.json({ versionId: "version-1" });
+    return Response.json({});
+  };
+
+  await login("rae@example.com", "StrongPass123!");
+  const signature = await apiPost<{ id: string }>("signatures", { name: "Work", category: "PROFESSIONAL" });
+  const versionResult = await createVersionAndRender<{ id: string }>(signature.id, {
+    displayText: "Rae Example",
+    style: "ELEGANT",
+    design: { fontFamily: "script", fontSize: 36, fontWeight: 500, letterSpacing: 1, slant: -4, rotation: 0, strokeWidth: 1.2 },
+  });
+
+  assert.equal(versionResult.version.id, "version-1");
+  assert.equal(versionResult.renderError, null);
+  assert.deepEqual(calls.slice(1).map(({ url }) => url.split("/api/v1/")[1]), [
+    "signatures",
+    "signatures/signature-1/versions",
+    "signatures/signature-1/versions/version-1/render",
+  ]);
+  assert.equal(JSON.parse(String(calls[2].body)).style, "ELEGANT");
+});
+
+test("version history is paginated by the API and current selection uses the backend route", async () => {
+  const calls: Array<{ url: string; method: string }> = [];
+  globalThis.fetch = async (input, init) => {
+    const url = String(input);
+    calls.push({ url, method: init?.method ?? "GET" });
+    if (url.endsWith("/auth/web/login")) return Response.json(authPayload("history-token"));
+    if (url.includes("/versions?page=2&limit=20")) return Response.json({ items: [{ id: "version-2" }], total: 21, page: 2, limit: 20, totalPages: 2 });
+    return Response.json({ id: "version-2", isCurrent: true });
+  };
+
+  await login("rae@example.com", "StrongPass123!");
+  const history = await apiGet("signatures/signature-1/versions?page=2&limit=20");
+  await apiPut("signatures/signature-1/versions/version-2/current");
+
+  assert.equal((history as { total: number }).total, 21);
+  assert.match(calls[1].url, /page=2&limit=20$/);
+  assert.equal(calls[2].method, "PUT");
+  assert.match(calls[2].url, /versions\/version-2\/current$/);
 });

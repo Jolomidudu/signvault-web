@@ -1,33 +1,8 @@
 import Link from "next/link";
-import { Check, ShieldCheck } from "lucide-react";
-import { Button } from "@/src/components/ui/button";
+import { ShieldCheck } from "lucide-react";
 import { Card } from "@/src/components/ui/card";
 
-const plans = [
-  {
-    name: "Personal",
-    price: "$0",
-    description: "For creating and managing personal signatures.",
-    features: [
-      "Up to 5 signatures",
-      "Version history",
-      "Copy and export",
-      "Private local mock vault",
-    ],
-  },
-  {
-    name: "Pro",
-    price: "$12",
-    description: "For stronger signature management.",
-    features: [
-      "Up to 25 signatures",
-      "Expiration controls",
-      "Sharing",
-      "Future verification support",
-    ],
-    featured: true,
-  },
-];
+const available = ["Version history", "Private API-backed assets", "Canonical SVG and PNG exports"];
 
 export default function PricingPage() {
   return (
@@ -45,52 +20,13 @@ export default function PricingPage() {
         <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
           Simple plans for signature control.
         </h1>
-        <p className="mx-auto mt-4 max-w-2xl text-slate-600">
-          This is a frontend product preview. Pricing is not connected to a
-          backend.
-        </p>
-        <div className="mt-12 grid gap-5 md:grid-cols-2">
-          {plans.map((plan) => (
-            <Card
-              key={plan.name}
-              className={`p-7 ${plan.featured ? "border-slate-950 shadow-lg shadow-slate-200" : ""}`}
-            >
-              <p className="text-sm font-semibold">{plan.name}</p>
-              <p className="mt-5 text-4xl font-semibold">
-                {plan.price}
-                <span className="text-sm font-normal text-slate-500">
-                  {" "}
-                  / month
-                </span>
-              </p>
-              <p className="mt-3 text-sm leading-6 text-slate-500">
-                {plan.description}
-              </p>
-              <ul className="mt-7 space-y-4">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-3 text-sm">
-                    <span className="grid h-5 w-5 place-items-center rounded-full bg-emerald-50 text-emerald-700">
-                      <Check className="h-3.5 w-3.5" />
-                    </span>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/register" className="mt-8 block">
-                <Button
-                  className="w-full"
-                  variant={plan.featured ? "primary" : "secondary"}
-                >
-                  Choose {plan.name}
-                </Button>
-              </Link>
-            </Card>
-          ))}
-        </div>
-        <div className="mt-8 flex items-center justify-center gap-2 text-sm text-slate-500">
-          <ShieldCheck className="h-4 w-4" /> Product preview only—no payment
-          processing
-        </div>
+        <p className="mx-auto mt-4 max-w-2xl text-slate-600">The backend currently supports up to 25 signature profiles per account. Subscription tiers and payment processing are not connected.</p>
+        <Card className="mx-auto mt-12 max-w-xl p-8 text-left">
+          <p className="text-sm font-semibold">Current backend allowance</p>
+          <p className="mt-5 text-4xl font-semibold">25 <span className="text-base font-normal text-slate-500">signature profiles</span></p>
+          <ul className="mt-7 space-y-4">{available.map((feature) => <li key={feature} className="flex items-center gap-3 text-sm"><ShieldCheck className="h-4 w-4 text-emerald-700" />{feature}</li>)}</ul>
+          <p className="mt-7 border-t border-slate-100 pt-5 text-sm text-slate-500">Sharing, paid plans, and payment processing are not available.</p>
+        </Card>
       </section>
     </main>
   );
