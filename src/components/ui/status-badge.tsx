@@ -1,16 +1,18 @@
-import type { SignatureStatus } from "@/src/lib/types";
+import type { SignatureStatus } from "@/src/lib/signatures";
 import { Badge } from "@/src/components/ui/badge";
 
 const statusStyles: Record<SignatureStatus, "success" | "warning" | "danger" | "neutral"> = {
-  active: "success",
-  expiring: "warning",
-  revoked: "danger",
+  ACTIVE: "success",
+  EXPIRED: "warning",
+  REVOKED: "danger",
+  ARCHIVED: "neutral",
 };
 
 const statusLabels: Record<SignatureStatus, string> = {
-  active: "Active",
-  expiring: "Expiring",
-  revoked: "Revoked",
+  ACTIVE: "Active",
+  EXPIRED: "Expired",
+  REVOKED: "Revoked",
+  ARCHIVED: "Archived",
 };
 
 export function SignatureStatusBadge({ status }: { status: SignatureStatus }) {
