@@ -1,4 +1,5 @@
 import { apiBlob, apiGet, apiPost, apiPut, apiPatch, apiDelete, createVersionAndRender } from "@/src/lib/api-client";
+import { copyImageWithFallback } from "@/src/lib/clipboard";
 
 export type SignatureCategory = "PROFESSIONAL" | "PERSONAL" | "BUSINESS" | "INITIALS" | "CUSTOM";
 export type SignatureStatus = "ACTIVE" | "REVOKED" | "EXPIRED" | "ARCHIVED";
@@ -138,16 +139,9 @@ function downloadBlob(blob: Blob, filename: string) {
 
 export async function copyPng(signatureId: string, versionId: string) {
   const blob = await getCanonicalExport(signatureId, versionId, "png");
-  const clipboard = navigator.clipboard as Clipboard & { write?: (items: ClipboardItem[]) => Promise<void> };
-  if (clipboard?.write && typeof ClipboardItem !== "undefined") {
-    try {
-      await clipboard.write([new ClipboardItem({ "image/png": blob })]);
-      return "copied" as const;
-    } catch {
-      downloadBlob(blob, "signature.png");
-      return "downloaded" as const;
-    }
-  }
-  downloadBlob(blob, "signature.png");
-  return "downloaded" as const;
+  const clipboard = navigator.clipboard as unknown as { write?: (items: ClipboardItem[]) => Promise<void> } | undefined;
+  const writeToClipboard = clipboard?.write && typeof ClipboardItem !== "undefined"
+    ? () => clipboard.write!([new ClipboardItem({ "image/png": blob })])
+    : null;
+  return copyImageWithFallback(blob, writeToClipboard, () => downloadBlob(blob, "signature.png"));
 }

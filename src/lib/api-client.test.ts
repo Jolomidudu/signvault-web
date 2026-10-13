@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
+import { copyImageWithFallback } from "./clipboard.ts";
+import { getVaultDisplayState } from "./vault-state.ts";
 import {
   apiGet,
   apiBlob,
@@ -250,6 +252,48 @@ test("vault queries are passed to the API and canonical exports are authenticate
   assert.equal(requests[1].init?.credentials, "include");
   assert.equal(new Headers(requests[2].init?.headers).get("Authorization"), "Bearer vault-token");
   assert.match(requests[2].url, /format=png&scale=2$/);
+});
+
+test("vault state distinguishes loading, error, empty, and populated results", () => {
+  assert.equal(getVaultDisplayState({ loading: true, error: "", items: [] }), "loading");
+  assert.equal(getVaultDisplayState({ loading: false, error: "offline", items: [] }), "error");
+  assert.equal(getVaultDisplayState({ loading: false, error: "", items: [] }), "empty");
+  assert.equal(getVaultDisplayState({ loading: false, error: "", items: [{ id: "signature-1" }] }), "populated");
+});
+
+test("private SVG retrieval and SVG export use authenticated API routes", async () => {
+  const calls: Array<{ url: string; init?: RequestInit }> = [];
+  globalThis.fetch = async (input, init) => {
+    calls.push({ url: String(input), init });
+    if (String(input).endsWith("/auth/web/login")) return Response.json(authPayload("asset-token"));
+    return new Response("<svg/>", { headers: { "Content-Type": "image/svg+xml" } });
+  };
+
+  await login("rae@example.com", "StrongPass123!");
+  const asset = await apiBlob("signatures/signature-1/versions/version-1/asset");
+  const exported = await apiBlob("signatures/signature-1/versions/version-1/export?format=svg&scale=1");
+
+  assert.equal(asset.type, "image/svg+xml");
+  assert.equal(exported.type, "image/svg+xml");
+  assert.equal(new Headers(calls[1].init?.headers).get("Authorization"), "Bearer asset-token");
+  assert.match(calls[1].url, /versions\/version-1\/asset$/);
+  assert.match(calls[2].url, /format=svg/);
+});
+
+test("image clipboard enhancement copies when supported and downloads on unavailable or rejected clipboard", async () => {
+  const blob = new Blob(["canonical png"], { type: "image/png" });
+  let copied = 0;
+  let downloaded = 0;
+
+  const copiedResult = await copyImageWithFallback(blob, async () => { copied += 1; }, () => { downloaded += 1; });
+  const unavailableResult = await copyImageWithFallback(blob, null, () => { downloaded += 1; });
+  const rejectedResult = await copyImageWithFallback(blob, async () => { throw new Error("unsupported"); }, () => { downloaded += 1; });
+
+  assert.equal(copiedResult, "copied");
+  assert.equal(unavailableResult, "downloaded");
+  assert.equal(rejectedResult, "downloaded");
+  assert.equal(copied, 1);
+  assert.equal(downloaded, 2);
 });
 
 test("signature creation is separate from version creation and render follows version persistence", async () => {

@@ -8,6 +8,7 @@ import { SignatureCard } from "@/src/components/app/signature-card";
 import { PageHeader } from "@/src/components/app/page-header";
 import { ApiError } from "@/src/lib/api-client";
 import { listSignatures, type Paginated, type SignatureCategory, type SignatureRecord, type SignatureStatus } from "@/src/lib/signatures";
+import { getVaultDisplayState } from "@/src/lib/vault-state";
 
 export default function VaultPage() {
   const [search, setSearch] = useState("");
@@ -33,6 +34,8 @@ export default function VaultPage() {
     }, search ? 250 : 0);
     return () => { active = false; window.clearTimeout(timer); };
   }, [search, status, category, sort, order, page, retry]);
+
+  const viewState = getVaultDisplayState({ loading, error, items: result?.items ?? [] });
 
   return (
     <div>
@@ -64,10 +67,10 @@ export default function VaultPage() {
           <button type="button" onClick={() => setOrder(order === "asc" ? "desc" : "asc")} aria-label={`Sort ${order === "asc" ? "descending" : "ascending"}`} className="grid h-10 w-10 place-items-center rounded-lg border border-slate-200 bg-white text-sm">{order === "asc" ? "↑" : "↓"}</button>
         </div>
       </div>
-      {loading && <p role="status" className="mt-8 text-sm text-slate-500">Loading your signatures…</p>}
-      {error && <section role="alert" className="mt-8 rounded-xl border border-red-200 bg-red-50 p-5"><p className="text-sm text-red-800">{error}</p><Button variant="secondary" size="sm" className="mt-3" onClick={() => setRetry((value) => value + 1)}>Retry</Button></section>}
-      {!loading && !error && result?.items.length === 0 && <section className="mt-8 rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center"><h2 className="font-semibold">No signatures found</h2><p className="mt-2 text-sm text-slate-600">{search || status || category ? "Adjust your server-side filters or search terms." : "Create your first profile to start your vault."}</p>{!search && !status && !category && <Link href="/signatures/new"><Button className="mt-4"><Plus className="h-4 w-4" /> Create signature</Button></Link>}</section>}
-      {result?.items.length ? <><div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{result.items.map((signature) => <SignatureCard key={signature.id} signature={signature} />)}</div><div className="mt-6 flex items-center justify-between border-t border-slate-200 pt-4"><p className="text-sm text-slate-500">Page {result.page} of {result.totalPages} · {result.total} results</p><div className="flex gap-2"><Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>Previous</Button><Button variant="secondary" size="sm" disabled={page >= result.totalPages} onClick={() => setPage((value) => value + 1)}>Next</Button></div></div></> : null}
+      {viewState === "loading" && <p role="status" className="mt-8 text-sm text-slate-500">Loading your signatures…</p>}
+      {viewState === "error" && <section role="alert" className="mt-8 rounded-xl border border-red-200 bg-red-50 p-5"><p className="text-sm text-red-800">{error}</p><Button variant="secondary" size="sm" className="mt-3" onClick={() => setRetry((value) => value + 1)}>Retry</Button></section>}
+      {viewState === "empty" && <section className="mt-8 rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center"><h2 className="font-semibold">No signatures found</h2><p className="mt-2 text-sm text-slate-600">{search || status || category ? "Adjust your server-side filters or search terms." : "Create your first profile to start your vault."}</p>{!search && !status && !category && <Link href="/signatures/new"><Button className="mt-4"><Plus className="h-4 w-4" /> Create signature</Button></Link>}</section>}
+      {viewState === "populated" && result ? <><div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{result.items.map((signature) => <SignatureCard key={signature.id} signature={signature} />)}</div><div className="mt-6 flex items-center justify-between border-t border-slate-200 pt-4"><p className="text-sm text-slate-500">Page {result.page} of {result.totalPages} · {result.total} results</p><div className="flex gap-2"><Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>Previous</Button><Button variant="secondary" size="sm" disabled={page >= result.totalPages} onClick={() => setPage((value) => value + 1)}>Next</Button></div></div></> : null}
     </div>
   );
 }
