@@ -17,6 +17,7 @@ import {
   register,
   safeReturnTo,
 } from "./api-client.ts";
+import { validateCanonicalSvg } from "./svg-asset.ts";
 
 process.env.NEXT_PUBLIC_API_BASE_URL = "http://localhost:4000/api/v1";
 
@@ -266,18 +267,39 @@ test("private SVG retrieval and SVG export use authenticated API routes", async 
   globalThis.fetch = async (input, init) => {
     calls.push({ url: String(input), init });
     if (String(input).endsWith("/auth/web/login")) return Response.json(authPayload("asset-token"));
-    return new Response("<svg/>", { headers: { "Content-Type": "image/svg+xml" } });
+    return new Response('<svg xmlns="http://www.w3.org/2000/svg"><text>Preview</text></svg>', {
+      headers: { "Content-Type": "image/svg+xml; charset=utf-8" },
+    });
   };
 
   await login("rae@example.com", "StrongPass123!");
-  const asset = await apiBlob("signatures/signature-1/versions/version-1/asset");
+  const asset = await validateCanonicalSvg(await apiBlob("signatures/signature-1/versions/version-1/asset"));
   const exported = await apiBlob("signatures/signature-1/versions/version-1/export?format=svg&scale=1");
 
-  assert.equal(asset.type, "image/svg+xml");
-  assert.equal(exported.type, "image/svg+xml");
+  assert.equal(asset.type.split(";", 1)[0], "image/svg+xml");
+  assert.ok(asset.size > 0);
+  assert.match(await asset.text(), /<svg[^>]*xmlns=/);
+  assert.equal(exported.type.split(";", 1)[0], "image/svg+xml");
   assert.equal(new Headers(calls[1].init?.headers).get("Authorization"), "Bearer asset-token");
   assert.match(calls[1].url, /versions\/version-1\/asset$/);
   assert.match(calls[2].url, /format=svg/);
+});
+
+test("private SVG retrieval rejects empty or non-SVG successful responses", async () => {
+  const responses = [
+    new Response("", { headers: { "Content-Type": "image/svg+xml" } }),
+    new Response("1", { headers: { "Content-Type": "image/svg+xml; charset=utf-8" } }),
+    new Response("<svg/>", { headers: { "Content-Type": "text/plain" } }),
+  ];
+  globalThis.fetch = async (input) => {
+    if (String(input).endsWith("/auth/web/login")) return Response.json(authPayload("asset-token"));
+    return responses.shift()!;
+  };
+
+  await login("rae@example.com", "StrongPass123!");
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await assert.rejects(validateCanonicalSvg(await apiBlob("signatures/signature-1/versions/version-1/asset")), /canonical SVG asset is empty or invalid/i);
+  }
 });
 
 test("image clipboard enhancement copies when supported and downloads on unavailable or rejected clipboard", async () => {

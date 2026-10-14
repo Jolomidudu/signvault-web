@@ -1,5 +1,6 @@
 import { apiBlob, apiGet, apiPost, apiPut, apiPatch, apiDelete, createVersionAndRender } from "@/src/lib/api-client";
 import { copyImageWithFallback } from "@/src/lib/clipboard";
+import { validateCanonicalSvg } from "@/src/lib/svg-asset";
 
 export type SignatureCategory = "PROFESSIONAL" | "PERSONAL" | "BUSINESS" | "INITIALS" | "CUSTOM";
 export type SignatureStatus = "ACTIVE" | "REVOKED" | "EXPIRED" | "ARCHIVED";
@@ -116,8 +117,11 @@ export const duplicateVersion = (signatureId: string, versionId: string) =>
 export const archiveVersion = (signatureId: string, versionId: string) =>
   apiPost<SignatureVersion>(`signatures/${encodeURIComponent(signatureId)}/versions/${encodeURIComponent(versionId)}/archive`);
 
-export const getPrivateSvg = (signatureId: string, versionId: string) =>
-  apiBlob(`signatures/${encodeURIComponent(signatureId)}/versions/${encodeURIComponent(versionId)}/asset`);
+export async function getPrivateSvg(signatureId: string, versionId: string) {
+  return validateCanonicalSvg(await apiBlob(
+    `signatures/${encodeURIComponent(signatureId)}/versions/${encodeURIComponent(versionId)}/asset`,
+  ));
+}
 
 export const getCanonicalExport = (signatureId: string, versionId: string, format: "svg" | "png", scale = 1) =>
   apiBlob(`signatures/${encodeURIComponent(signatureId)}/versions/${encodeURIComponent(versionId)}/export${queryString({ format, scale })}`);
