@@ -3,8 +3,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, type UseFormRegisterReturn } from "react-hook-form";
 import { z } from "zod";
+import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/src/components/auth/auth-provider";
 import { ApiError, safeReturnTo } from "@/src/lib/api-client";
 import { Button } from "@/src/components/ui/button";
@@ -30,6 +31,60 @@ const registerSchema = z
 
 type LoginValues = z.infer<typeof loginSchema>;
 type RegisterValues = z.infer<typeof registerSchema>;
+
+function PasswordField({
+  id,
+  label,
+  autoComplete,
+  field,
+  error,
+}: {
+  id: string;
+  label: string;
+  autoComplete: string;
+  field: UseFormRegisterReturn;
+  error?: string;
+}) {
+  const [visible, setVisible] = useState(false);
+
+  return (
+    <div className="space-y-2 text-sm font-medium text-slate-700">
+      <label htmlFor={id} className="block">
+        {label}
+      </label>
+      <div className="relative">
+        <Input
+          id={id}
+          type={visible ? "text" : "password"}
+          autoComplete={autoComplete}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? `${id}-error` : undefined}
+          className="pr-12"
+          {...field}
+        />
+        <button
+          type="button"
+          onClick={() => setVisible((current) => !current)}
+          aria-label={`${visible ? "Hide" : "Show"} ${label.toLowerCase()}`}
+          aria-pressed={visible}
+          title={`${visible ? "Hide" : "Show"} ${label.toLowerCase()}`}
+          className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-xl text-slate-500 transition hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-600"
+        >
+          {visible ? (
+            <EyeOff className="h-4 w-4" aria-hidden="true" />
+          ) : (
+            <Eye className="h-4 w-4" aria-hidden="true" />
+          )}
+        </button>
+      </div>
+      {error && (
+        <span id={`${id}-error`} className="block text-xs text-red-600">
+          {error}
+        </span>
+      )}
+    </div>
+  );
+}
 
 export function LoginForm({ logoutFailed = false }: { logoutFailed?: boolean }) {
   const router = useRouter();
@@ -82,14 +137,12 @@ export function LoginForm({ logoutFailed = false }: { logoutFailed?: boolean }) 
           {...register("email")}
         />
       </Field>
-      <Field label="Password">
-        <Input
-          type="password"
-          autoComplete="current-password"
-          placeholder="Enter your password"
-          {...register("password")}
-        />
-      </Field>
+      <PasswordField
+        id="login-password"
+        label="Password"
+        autoComplete="current-password"
+        field={register("password")}
+      />
       <div className="flex justify-end text-sm">
         <a href="/forgot-password" className="font-medium text-blue-700">
           Forgot password?
@@ -173,25 +226,19 @@ export function RegisterForm() {
         />
       </Field>
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Password">
-          <Input
-            type="password"
-            autoComplete="new-password"
-            {...register("password")}
-          />
-        </Field>
-        <Field label="Confirm password">
-          <Input
-            type="password"
-            autoComplete="new-password"
-            {...register("confirmPassword")}
-          />
-          {errors.confirmPassword && (
-            <span className="mt-1 block text-xs text-red-600">
-              {errors.confirmPassword.message}
-            </span>
-          )}
-        </Field>
+        <PasswordField
+          id="register-password"
+          label="Password"
+          autoComplete="new-password"
+          field={register("password")}
+        />
+        <PasswordField
+          id="register-confirm-password"
+          label="Confirm password"
+          autoComplete="new-password"
+          field={register("confirmPassword")}
+          error={errors.confirmPassword?.message}
+        />
       </div>
       <label className="flex cursor-pointer items-start gap-3 text-sm leading-6 text-slate-600">
         <input
