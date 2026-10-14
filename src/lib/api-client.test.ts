@@ -18,6 +18,7 @@ import {
   safeReturnTo,
 } from "./api-client.ts";
 import { validateCanonicalSvg } from "./svg-asset.ts";
+import { createPrivatePreviewUrl } from "./preview-url.ts";
 
 process.env.NEXT_PUBLIC_API_BASE_URL = "http://localhost:4000/api/v1";
 
@@ -366,4 +367,26 @@ test("version history is paginated by the API and current selection uses the bac
   assert.match(calls[1].url, /page=2&limit=20$/);
   assert.equal(calls[2].method, "PUT");
   assert.match(calls[2].url, /versions\/version-2\/current$/);
+});
+
+test("private preview object URLs remain live until cleanup and revoke only once", () => {
+  const originalCreate = URL.createObjectURL;
+  const originalRevoke = URL.revokeObjectURL;
+  const revoked: string[] = [];
+  URL.createObjectURL = () => "blob:fixture-preview";
+  URL.revokeObjectURL = (url) => { revoked.push(url); };
+
+  try {
+    const preview = createPrivatePreviewUrl(new Blob(["<svg/>"] , { type: "image/svg+xml" }));
+    const imageSrc = preview.url;
+    assert.equal(imageSrc, "blob:fixture-preview");
+    assert.deepEqual(revoked, []);
+
+    preview.revoke();
+    preview.revoke();
+    assert.deepEqual(revoked, ["blob:fixture-preview"]);
+  } finally {
+    URL.createObjectURL = originalCreate;
+    URL.revokeObjectURL = originalRevoke;
+  }
 });
